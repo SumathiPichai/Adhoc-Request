@@ -1,0 +1,20 @@
+select 
+sub.name suburb_name , sub.postcode, FStore.BRANCH_NO,STORE_NAME 
+from 
+PROD_EDW_SIF.MOR_SMKT_STR_SUBURB sub
+
+JOIN PROD_EDW_SIF.MOR_SMKT_STR_CITY_SUBURB city_sub
+ON city_sub.suburb_id=sub.ID
+JOIN PROD_EDW_SIF.MOR_SMKT_STR_AREA Area
+ON Area.ID=city_sub.city_id
+JOIN  PROD_EDW_SIF.MOR_SMKT_ECF_Fulfilment_Store FStore
+ON area.FulfilmentStoreID = FStore.BRANCH_NO
+
+
+
+
+select yearmonth , count(*) ,sum(tot_gross_incld_gst)  from  prod_wa_query.RDA_product_instr_Sales  group by 1 
+
+where start_txn_date >= date'2015-01-01'  and start_txn_date  <  date'2015-02-01' 
+
+
