@@ -1,0 +1,289 @@
+
+--------------New shoppers in 2016 and their order history ------------------------
+
+
+select  A.shopperid, 
+ min(orderdate) ,
+ max(case when b2b.ShopperID is not null then 'Y' else 'N' end)  as B2B_customer
+ ,SUM(case when rownumber = 1 then  order_amt  else null end ) as order_1
+,SUM(case when rownumber = 2 then  order_amt  else null end ) as order_2
+,SUM(case when rownumber = 3 then  order_amt  else null end ) as order_3
+,SUM(case when rownumber = 4 then  order_amt  else null end ) as order_4
+,SUM(case when rownumber = 5 then  order_amt  else null end ) as order_5
+,SUM(case when rownumber = 6 then  order_amt  else null end ) as order_6
+,SUM(case when rownumber = 7 then  order_amt  else null end ) as order_7
+,SUM(case when rownumber = 8 then  order_amt  else null end ) as order_8
+,SUM(case when rownumber = 9 then  order_amt  else null end ) as order_9
+,SUM(case when rownumber = 10 then  order_amt  else null end ) as order_10
+,SUM(case when rownumber = 11  then  order_amt  else null end ) as order_11
+,SUM(case when rownumber = 12 then  order_amt  else null end ) as order_12
+,SUM(case when rownumber = 13 then  order_amt  else null end ) as order_13
+,SUM(case when rownumber = 14 then  order_amt  else null end ) as order_14
+,SUM(case when rownumber = 15 then  order_amt  else null end ) as order_15
+,SUM(case when rownumber = 16 then  order_amt  else null end ) as order_16
+,SUM(case when rownumber = 17 then  order_amt  else null end ) as order_17
+,SUM(case when rownumber = 18 then  order_amt  else null end ) as order_18
+,SUM(case when rownumber = 19 then  order_amt  else null end ) as order_19
+,SUM(case when rownumber = 20 then  order_amt  else null end ) as order_20
+,SUM(case when rownumber = 21 then  order_amt  else null end ) as order_21
+,SUM(case when rownumber = 22 then  order_amt  else null end ) as order_22
+,SUM(case when rownumber = 23 then  order_amt  else null end ) as order_23
+,SUM(case when rownumber = 24 then  order_amt  else null end ) as order_24
+,SUM(case when rownumber = 25 then  order_amt  else null end ) as order_25
+,SUM(case when rownumber = 26 then  order_amt  else null end ) as order_26
+,SUM(case when rownumber = 27 then  order_amt  else null end ) as order_27
+,SUM(case when rownumber = 28 then  order_amt  else null end ) as order_28
+,SUM(case when rownumber = 29 then  order_amt  else null end ) as order_29
+,SUM(case when rownumber = 30 then  order_amt  else null end ) as order_30
+,SUM(case when rownumber = 31 then  order_amt  else null end ) as order_31
+,SUM(case when rownumber = 32 then  order_amt  else null end ) as order_32
+,SUM(case when rownumber = 33 then  order_amt  else null end ) as order_33
+,SUM(case when rownumber = 34 then  order_amt  else null end ) as order_34
+,SUM(case when rownumber = 35 then  order_amt  else null end ) as order_35
+,SUM(case when rownumber = 36 then  order_amt  else null end ) as order_36
+,SUM(case when rownumber = 37 then  order_amt  else null end ) as order_37
+,SUM(case when rownumber = 38 then  order_amt  else null end ) as order_38
+,SUM(case when rownumber = 39 then  order_amt  else null end ) as order_39
+,SUM(case when rownumber = 40 then  order_amt  else null end ) as order_40
+,SUM(case when rownumber = 41 then  order_amt  else null end ) as order_41
+,SUM(case when rownumber = 42 then  order_amt  else null end ) as order_42
+,SUM(case when rownumber = 43 then  order_amt  else null end ) as order_43
+,SUM(case when rownumber = 44 then  order_amt  else null end ) as order_44
+,SUM(case when rownumber = 45 then  order_amt  else null end ) as order_45
+,SUM(case when rownumber = 46 then  order_amt  else null end ) as order_46
+,SUM(case when rownumber = 47 then  order_amt  else null end ) as order_47
+,SUM(case when rownumber = 48 then  order_amt  else null end ) as order_48
+,SUM(case when rownumber = 49 then  order_amt  else null end ) as order_49
+,SUM(case when rownumber = 50 then  order_amt  else null end ) as order_50
+,SUM(case when rownumber = 51 then  order_amt  else null end ) as order_51
+,SUM(case when rownumber = 52 then  order_amt  else null end ) as order_52
+,SUM(case when rownumber > 52 then  order_amt  else null end ) as order_53
+ from 
+ 
+ 
+ ( 
+ 
+ select shopperid ,    (total - deliveryfee ) as order_amt , orderdate , total , ROW_NUMBER() OVER (PARTITION BY shopperid order by orderdate asc) rownumber
+ 
+   from PROD_EDW_SIF.MOR_SMKT_ORD_ORDER  ordr
+   
+   where 
+   shopperid in (   
+select shopper_id  
+ from PROD_EDW_SIF.MOR_SMKT_STR_SHOPPER where end_date = date'2099-12-31' and record_deleted_flag = 0 
+and cast( date_created  as date) >= date'2016-01-01' and cast( date_created  as date) <date'2017-01-01' 
+)
+and  Status not in ('C a n c e l l e d','Cancelled')
+and   (total - deliveryfee ) <> 0.0000
+and cast(ss_exp_tmstmp as date) =date'2099-12-31'
+
+) A 
+left join 
+    PROD_EDW_SIF.MOR_SMKT_STR_SHOPPERB2B b2b
+    on 
+                b2b.end_date = date'2099-12-31' 
+    and   b2b. shopperid  = A.shopperid 
+    and  b2b.Record_Deleted_Flag   = 0 
+ 
+ group by 1 
+ order by 
+ order_53  	desc 
+ ,order_52  	desc 
+ ,order_51	desc 
+ ,order_50	desc 
+ ,order_49	desc 
+ ,order_48	desc 
+ ,order_47	desc 
+ ,order_46	desc 
+ ,order_45	desc 
+ ,order_44	desc 
+ ,order_43	desc 
+ ,order_42	desc 
+ ,order_41	desc 
+ ,order_40	desc 
+ ,order_39	desc 
+ ,order_38	desc 
+ ,order_37	desc 
+ ,order_36	desc 
+ ,order_35	desc 
+ ,order_34	desc 
+ ,order_33	desc 
+ ,order_32	desc 
+ ,order_31	desc 
+ ,order_30	desc 
+ ,order_29	desc 
+ ,order_28	desc 
+ ,order_27	desc 
+ ,order_26	desc 
+ ,order_25	desc 
+ ,order_24	desc 
+ ,order_23	desc 
+ ,order_22	desc 
+ ,order_21	desc 
+ ,order_20	desc 
+ ,order_19	desc 
+ ,order_18	desc 
+ ,order_17	desc 
+ ,order_16	desc 
+ ,order_15	desc 
+ ,order_14	desc 
+ ,order_13	desc 
+ ,order_12	desc 
+ ,order_11	desc 
+ ,order_10	desc 
+ ,order_9	desc 
+ ,order_8	desc 
+ ,order_7	desc 
+ ,order_6	desc 
+ ,order_5	desc 
+ ,order_4	desc 
+ ,order_3	desc 
+ ,order_2	desc 
+ ,order_1	desc 
+
+
+------------------Shopper with alteast 1 order less than $60  and their shopping history between 01-Jan-2016 to 31-Dec-2016 ------
+
+select  A.shopperid, 
+ min(orderdate) ,
+ max(case when b2b.ShopperID is not null then 'Y' else 'N' end)  as B2B_customer
+,SUM(case when rownumber = 1 then  order_amt  else null end ) as order_1
+,SUM(case when rownumber = 1 then  deliveryfee  else null end ) as del_fee_1
+,SUM(case when rownumber = 2 then  order_amt  else null end ) as order_2
+,SUM(case when rownumber = 2 then  deliveryfee  else null end ) as del_fee_2
+,SUM(case when rownumber = 3 then  order_amt  else null end ) as order_3
+,SUM(case when rownumber = 3 then  deliveryfee else null end ) as del_fee_3
+,SUM(case when rownumber = 4 then  order_amt  else null end ) as order_4
+,SUM(case when rownumber = 4 then  deliveryfee else null end ) as del_fee_4
+,SUM(case when rownumber = 5 then  order_amt  else null end ) as order_5
+,SUM(case when rownumber = 5 then  deliveryfee  else null end ) as del_fee_5
+,SUM(case when rownumber = 6 then  order_amt  else null end ) as order_6
+,SUM(case when rownumber = 6 then  deliveryfee  else null end ) as del_fee_6
+,SUM(case when rownumber = 7 then  order_amt  else null end ) as order_7
+,SUM(case when rownumber = 7 then  deliveryfee else null end ) as del_fee_7
+,SUM(case when rownumber = 8 then  order_amt  else null end ) as order_8
+,SUM(case when rownumber = 8 then  deliveryfee else null end ) as del_fee_8
+,SUM(case when rownumber = 9 then  order_amt  else null end ) as order_9
+,SUM(case when rownumber = 9 then  deliveryfee  else null end ) as del_fee_9
+,SUM(case when rownumber = 10 then  order_amt  else null end ) as order_10
+,SUM(case when rownumber = 10 then  deliveryfee else null end ) as del_fee_10
+,SUM(case when rownumber = 11  then  order_amt  else null end ) as order_11
+,SUM(case when rownumber = 11 then  deliveryfee else null end ) as del_fee_11
+,SUM(case when rownumber = 12 then  order_amt  else null end ) as order_12
+,SUM(case when rownumber = 12 then deliveryfee  else null end ) as del_fee_12
+,SUM(case when rownumber = 13 then  order_amt  else null end ) as order_13
+,SUM(case when rownumber = 13 then  deliveryfee  else null end ) as del_fee_13
+,SUM(case when rownumber = 14 then  order_amt  else null end ) as order_14
+,SUM(case when rownumber = 14 then  deliveryfee  else null end ) as del_fee_14
+,SUM(case when rownumber = 15 then  order_amt  else null end ) as order_15
+,SUM(case when rownumber = 15 then  deliveryfee  else null end ) as del_fee_15
+,SUM(case when rownumber = 16 then  order_amt  else null end ) as order_16
+,SUM(case when rownumber = 16 then  deliveryfee  else null end ) as del_fee_16
+,SUM(case when rownumber = 17 then  order_amt  else null end ) as order_17
+,SUM(case when rownumber = 17 then  deliveryfee  else null end ) as del_fee_17
+,SUM(case when rownumber = 18 then  order_amt  else null end ) as order_18
+,SUM(case when rownumber = 18 then  deliveryfee  else null end ) as del_fee_18
+,SUM(case when rownumber = 19 then  order_amt  else null end ) as order_19
+,SUM(case when rownumber = 19 then deliveryfee  else null end ) as del_fee_19
+,SUM(case when rownumber = 20 then  order_amt  else null end ) as order_20
+,SUM(case when rownumber = 20 then deliveryfee else null end ) as del_fee_20
+,SUM(case when rownumber = 21 then  order_amt  else null end ) as order_21
+,SUM(case when rownumber = 21 then  deliveryfee  else null end ) as del_fee_21
+,SUM(case when rownumber = 22 then  order_amt  else null end ) as order_22
+,SUM(case when rownumber = 22 then  deliveryfee else null end ) as del_fee_22
+,SUM(case when rownumber = 23 then  order_amt  else null end ) as order_23
+,SUM(case when rownumber = 23 then  deliveryfee  else null end ) as del_fee_23
+,SUM(case when rownumber = 24 then  order_amt  else null end ) as order_24
+,SUM(case when rownumber = 24 then  deliveryfee  else null end ) as del_fee_24
+,SUM(case when rownumber = 25 then  order_amt  else null end ) as order_25
+,SUM(case when rownumber = 25 then  deliveryfee  else null end ) as del_fee_25
+,SUM(case when rownumber = 26 then  order_amt  else null end ) as order_26
+,SUM(case when rownumber = 26 then  deliveryfee  else null end ) as del_fee_26
+,SUM(case when rownumber = 27 then  order_amt  else null end ) as order_27
+,SUM(case when rownumber = 27 then  deliveryfee  else null end ) as del_fee_27
+,SUM(case when rownumber = 28 then  order_amt  else null end ) as order_28
+,SUM(case when rownumber = 28 then  deliveryfee  else null end ) as del_fee_28
+,SUM(case when rownumber = 29 then  order_amt  else null end ) as order_29
+,SUM(case when rownumber = 29 then  deliveryfee  else null end ) as del_fee_29
+,SUM(case when rownumber = 30 then  order_amt  else null end ) as order_30
+,SUM(case when rownumber = 30 then  deliveryfee  else null end ) as del_fee_30
+,SUM(case when rownumber = 31 then  order_amt  else null end ) as order_31
+,SUM(case when rownumber = 31 then  deliveryfee  else null end ) as del_fee_31
+,SUM(case when rownumber = 32 then  order_amt  else null end ) as order_32
+,SUM(case when rownumber = 32 then  deliveryfee else null end ) as del_fee_32
+,SUM(case when rownumber = 33 then  order_amt  else null end ) as order_33
+,SUM(case when rownumber = 33 then  deliveryfee  else null end ) as del_fee_33
+,SUM(case when rownumber = 34 then  order_amt  else null end ) as order_34
+,SUM(case when rownumber = 34 then deliveryfee else null end ) as del_fee_34
+,SUM(case when rownumber = 35 then  order_amt  else null end ) as order_35
+,SUM(case when rownumber = 35 then deliveryfee  else null end ) as del_fee_35
+,SUM(case when rownumber = 36 then  order_amt  else null end ) as order_36
+,SUM(case when rownumber = 36 then  deliveryfee else null end ) as del_fee_36
+,SUM(case when rownumber = 37 then  order_amt  else null end ) as order_37
+,SUM(case when rownumber = 37 then  deliveryfee else null end ) as del_fee_37
+,SUM(case when rownumber = 38 then  order_amt  else null end ) as order_38
+,SUM(case when rownumber = 38 then  deliveryfee  else null end ) as del_fee_38
+,SUM(case when rownumber = 39 then  order_amt  else null end ) as order_39
+,SUM(case when rownumber = 39 then  deliveryfee  else null end ) as del_fee_39
+,SUM(case when rownumber = 40 then  order_amt  else null end ) as order_40
+,SUM(case when rownumber = 40 then deliveryfee  else null end ) as del_fee_40
+,SUM(case when rownumber = 41 then  order_amt  else null end ) as order_41
+,SUM(case when rownumber = 41 then  deliveryfee  else null end ) as del_fee_41
+,SUM(case when rownumber = 42 then  order_amt  else null end ) as order_42
+,SUM(case when rownumber = 42 then  deliveryfee else null end ) as del_fee_42
+,SUM(case when rownumber = 43 then  order_amt  else null end ) as order_43
+,SUM(case when rownumber = 43 then  deliveryfee  else null end ) as del_fee_43
+,SUM(case when rownumber = 44 then  order_amt  else null end ) as order_44
+,SUM(case when rownumber = 44 then  deliveryfee  else null end ) as del_fee_44
+,SUM(case when rownumber = 45 then  order_amt  else null end ) as order_45
+,SUM(case when rownumber = 45 then  deliveryfee  else null end ) as del_fee_45
+,SUM(case when rownumber = 46 then  order_amt  else null end ) as order_46
+,SUM(case when rownumber = 46 then  deliveryfee  else null end ) as del_fee_46
+,SUM(case when rownumber = 47 then  order_amt  else null end ) as order_47
+,SUM(case when rownumber = 47 then  deliveryfee  else null end ) as del_fee_47
+,SUM(case when rownumber = 48 then  order_amt  else null end ) as order_48
+,SUM(case when rownumber = 48 then  deliveryfee else null end ) as del_fee_48
+,SUM(case when rownumber = 49 then  order_amt  else null end ) as order_49
+,SUM(case when rownumber = 49 then  deliveryfee else null end ) as del_fee_49
+,SUM(case when rownumber = 50 then  order_amt  else null end ) as order_50
+,SUM(case when rownumber = 50 then  deliveryfee  else null end ) as del_fee_50
+,SUM(case when rownumber = 51 then  order_amt  else null end ) as order_51
+,SUM(case when rownumber = 51 then  deliveryfee  else null end ) as del_fee_51
+,SUM(case when rownumber = 52 then  order_amt  else null end ) as order_52
+,SUM(case when rownumber = 52 then  deliveryfee else null end ) as del_fee_52
+,SUM(case when rownumber > 52 then  order_amt  else null end ) as order_53
+,SUM(case when rownumber > 52 then deliveryfee  else null end ) as del_fee_53
+ from 
+ 
+ 
+ ( 
+ 
+ select shopperid ,    (total - deliveryfee ) as order_amt , orderdate , deliveryfee , ROW_NUMBER() OVER (PARTITION BY shopperid order by orderdate asc) rownumber
+ 
+   from PROD_EDW_SIF.MOR_SMKT_ORD_ORDER  ordr
+   
+   where 
+   shopperid in (   
+select distinct shopperid 
+ 
+   from PROD_EDW_SIF.MOR_SMKT_ORD_ORDER  ordr
+ where 
+            cast(ss_exp_tmstmp as date) =date'2099-12-31'
+ and  (total - deliveryfee ) <= 60 
+  and orderdate >= date'2016-01-01' and orderdate < date'2017-01-01' 
+)
+and  Status not in ('C a n c e l l e d','Cancelled')
+and   (total - deliveryfee ) <> 0.0000
+and cast(ss_exp_tmstmp as date) =date'2099-12-31'
+and   orderdate >= date'2016-01-01' and orderdate < date'2017-01-01' 
+) A 
+left join 
+    PROD_EDW_SIF.MOR_SMKT_STR_SHOPPERB2B b2b
+    on 
+                b2b.end_date = date'2099-12-31' 
+    and   b2b. shopperid  = A.shopperid 
+    and  b2b.Record_Deleted_Flag   = 0 
+ 
+ group by 1 
+ order by 
+ 
