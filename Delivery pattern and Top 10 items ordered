@@ -1,0 +1,90 @@
+--- Delivery Pattern ---									
+select									
+cast(pickup_dtime as date)									
+,dow									
+,case when dow  = 1 then 'Monday'									
+when dow  = 2 then 'Tuesday'									
+when dow  = 3 then 'Wednesday'									
+when dow  = 4 then 'Thursday'									
+when dow  = 5 then 'Friday'									
+when dow  = 6 then 'Saturday'									
+when dow  = 7 then 'Sunday'									
+end as dow_Desc									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =0 then order_no else NULL end)) as MID_TO_1									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 1 then order_no else NULL end)) as 1_TO_2									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 2 then order_no else NULL end)) as 2_TO_3									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 3 then order_no else NULL end)) as 3_TO_4									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 4 then order_no else NULL end)) as 4_TO_5									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 5 then order_no else NULL end)) as 5_TO_6									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 6 then order_no else NULL end)) as 6_TO_7									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 7 then order_no else NULL end)) as 7_TO_8									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 8 then order_no else NULL end)) as 8_TO_9									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 9 then order_no else NULL end)) as 9_TO_10									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 10  then order_no else NULL end)) as 10_TO_11									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 11  then order_no else NULL end)) as 11_TO_12									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 12  then order_no else NULL end)) as 12_TO_13									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 13 then order_no else NULL end)) as 13_TO_14									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =14  then order_no else NULL end)) as 14_TO_15									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =15  then order_no else NULL end)) as 15_TO_16									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =16  then order_no else NULL end)) as 16_TO_17									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 17 then order_no else NULL end)) as 17_TO_18									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 18  then order_no else NULL end)) as 18_TO_19									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 19  then order_no else NULL end)) as 19_TO_20									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 20  then order_no else NULL end)) as 20_TO_21									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  = 21 then order_no else NULL end)) as 21_TO_22									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =22  then order_no else NULL end)) as 22_TO_23									
+,count( distinct (case when EXTRACT (HOUR FROM oh.pickup_dtime )  =23  then order_no else NULL end)) as 23_TO_24									
+,count(distinct order_no)									
+									
+from  PROD_EDW_SIF.MOR_SMKT_ECF_Order_header  oh									
+inner join									
+PROD_EDW_WIL.DIM_DATE_CURR_V    date1									
+on									
+date1.clndr_date =  cast(pickup_dtime as date)									
+									
+where cast( ss_exp_tmstmp  as date) =date'2099-12-31'  and									
+cast(pickup_dtime as date) >= date'2017-01-01'									
+and     cast(pickup_dtime as date) < date'2017-02-01'									
+and Order_Status_Ind   in ('DIS','COL' ,'CLS' )									
+									
+group by 1,2,3									
+									
+select  order_status_ind , count(*)									
+from  PROD_EDW_SIF.MOR_SMKT_ECF_Order_header  oh									
+where  cast(pickup_dtime as date) >= date'2017-01-01'									
+and   cast(pickup_dtime as date) < date'2017-02-01'									
+group by 1									
+									
+									
+--- top 10---									
+SELECT									
+	CAST(OP.StockCode  AS VARCHAR(25))                           AS ProdKeyCode ,								
+	Description as productname ,								
+	COALESCE(ECCPROD.PackbreakdownArticle,ECCPROD.ArticleNumber)||'-'||ECCPROD.UOM  as Sap_product_nbr ,								
+	sum(  COALESCE(OP.QUANTITY,0)   )                                        AS ProdQuantity ,								
+	sum(   COALESCE(OP.LISTPRICE,0)      )                                    AS ProdUnitPrice ,								
+	sum(   COALESCE(OP.TOTAL,0)       )                                       AS AmountIncGST								
+	--  max(   COALESCE(GSTRATE.TAX_PERCENT,0)      )                             AS GST_PERCENTAGE								
+									
+	FROM								
+	PROD_EDW_SIF.MOR_SMKT_ORD_ORDERPRODUCT OP								
+	INNER JOIN PROD_EDW_SIF.MOR_SMKT_ORD_ORDER ORD								
+	ON								
+	ORD.ID = OP.OrderID								
+	LEFT JOIN PROD_EDW_SIF.MOR_SMKT_HSM_Product HSM_PRODUCT								
+	ON								
+	HSM_PRODUCT.REF_NO = OP.StockCode								
+	-- AND EACH_PRICING_UNIT = 'KG'								
+	AND HSM_PRODUCT.Record_Deleted_Flag = 0								
+	AND HSM_PRODUCT.End_Date = DATE '2099-12-31'								
+	LEFT JOIN PROD_EDW_sif.ECC_ARTICLE  ECCPROD								
+	ON								
+	ECCPROD.articlenumber = CAST(OP.StockCode AS VARCHAR(100))								
+	and   ECCPROD.end_date =date'2099-12-31' and   ECCPROD.Record_Deleted_Flag = 0								
+									
+	WHERE								
+	OP.ss_exp_tmstmp = TIMESTAMP'2099-12-31 00:00:00'								
+	and  ORDERDate >= date'2017-01-01' and ORDERDate < date'2017-02-01'								
+	and status not in ('C a n c e l l e d','Cancelled')								
+	group by 1 ,2,3								
+									
